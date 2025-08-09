@@ -5,7 +5,21 @@
 
   // ---------- Навигация с анимацией ----------
   const tabs = $$('.tabbar button'), pages = $$('.page');
-  function _scrollToTop(){ try{ window.scrollTo({top:0, left:0, behavior:'auto'}); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} }
+  function _scrollToTop(){
+    try {
+      const target = document.scrollingElement || document.documentElement || document.body;
+      const pages = document.getElementById('pages');
+      const doScroll = ()=>{
+        window.scrollTo(0,0);
+        target.scrollTop = 0;
+        document.body.scrollTop = 0;
+        if (pages && typeof pages.scrollIntoView==='function') pages.scrollIntoView({block:'start'});
+      };
+      doScroll();
+      requestAnimationFrame(()=>{ doScroll(); requestAnimationFrame(doScroll); });
+      setTimeout(doScroll, 50);
+    } catch(e){}
+  }); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} }
   function show(page){
     pages.forEach(p => {
       const active = (p.id === 'page-' + page);
