@@ -8,29 +8,26 @@
   function _scrollToTop(){
     try {
       const target = document.scrollingElement || document.documentElement || document.body;
-      const pages = document.getElementById('pages');
-      const doScroll = ()=>{
-        window.scrollTo(0,0);
-        target.scrollTop = 0;
-        document.body.scrollTop = 0;
-        if (pages && typeof pages.scrollIntoView==='function') pages.scrollIntoView({block:'start'});
-      };
-      doScroll();
-      requestAnimationFrame(()=>{ doScroll(); requestAnimationFrame(doScroll); });
-      setTimeout(doScroll, 50);
+      window.scrollTo(0,0);
+      target.scrollTop = 0;
+      document.body.scrollTop = 0;
     } catch(e){}
-  }); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} }
+  }
   function show(page){
     pages.forEach(p => {
       const active = (p.id === 'page-' + page);
       p.classList.toggle('active', active);
-       _scrollToTop(); });
+    });
     tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
+    localStorage.setItem('activePage', page);
+    _scrollToTop();
+  }
+tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
     localStorage.setItem('activePage', page);
   }
   tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.page)));
   try{ localStorage.setItem('activePage','checkin'); }catch{};
-  show('checkin');
+  try{ localStorage.setItem('activePage','checkin'); }catch{}; show('checkin');
   // ---------- Заполнение списков ----------
   async function refreshEmployees() {
     const list = await DB.getEmployees();
