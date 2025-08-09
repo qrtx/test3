@@ -15,8 +15,8 @@
     localStorage.setItem('activePage', page);
   }
   tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.page)));
-  show(localStorage.getItem('activePage') || 'checkin');
-
+  try{ localStorage.setItem('activePage','checkin'); }catch{};
+  show('checkin');
   // ---------- Заполнение списков ----------
   async function refreshEmployees() {
     const list = await DB.getEmployees();
