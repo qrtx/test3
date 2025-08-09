@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Учет смен — бета</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- сначала модуль с базой -->
+  <script type="module" src="js/data.js"></script>
+<!-- потом обычный скрипт приложения -->
+  <script src="js/app.js"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { brand:{500:'#2b85ff'}, accent:{500:'#ff4dc7'} }, fontFamily:{ sans:['Inter','system-ui','Segoe UI','Roboto','Arial'] } } } }
+  </script>
+  <link rel="stylesheet" href="css/glass.css" />
+  <style>
+    /* Page transition + initial reveal */
+    body { opacity: 0; transition: opacity .35s ease; }
+    body.ready { opacity: 1; }
+    .page { 
+      display: block; opacity: 0; transform: translateY(8px);
+      pointer-events: none; transition: opacity .22s ease, transform .24s ease;
+      will-change: opacity, transform;
+    }
+    .page.hidden-soft { display:none; } /* fallback if JS toggles class */
+    .page.active { opacity: 1; transform: none; pointer-events: auto; }
+    .badge{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.35); }
+    #calendar{ min-height: 420px; }
+  </style>
+</head>
+<body class="font-sans text-gray-900 min-h-screen">
+  <div class="liquid-blobs"><div class="blob a"></div><div class="blob b"></div></div>
+  <div class="mx-auto max-w-screen-md px-4 pb-28 pt-4">
+    <header class="glass p-4 sm:p-5 mb-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 sm:gap-4">
+        <img src="assets/logo.svg" alt="УС" class="h-10 w-10 rounded-2xl" />
+        <div>
+          <h1 class="text-xl font-semibold leading-tight">Учет смен</h1>
+          <p class="text-xs text-gray-600">Material 3.0 бета - @polychromaticFox & @foxy-dev</p>
+        </div>
+      </div>
+
+    </header>
+
+    <main id="pages" class="space-y-4">
+      <section id="page-checkin" class="page active glass p-4 sm:p-5">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Отметиться</h2>
+          <span class="text-xs text-gray-600">#checkin</span>
+        </header>
+        <div class="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-3">
+          <select id="employee" class="glass-ink rounded-xl px-3 py-3 focus:ring-2 focus:ring-brand-500"></select>
+          <select id="point" class="glass-ink rounded-xl px-3 py-3 focus:ring-2 focus:ring-brand-500"></select>
+          <button id="btn-checkin" class="glass-ink rounded-xl px-4 py-3 font-semibold">Отметиться</button>
+          <p id="checkinStatus" class="sm:col-span-3 text-sm text-gray-700"></p>
+        </div>
+      </section>
+
+      <section id="page-calendar" class="page glass p-4 sm:p-5">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Календарь</h2>
+          <div class="flex gap-2">
+            <button id="prevMonth" class="glass-ink px-3 py-2 rounded-xl text-sm">&lt; Назад</button>
+            <div id="monthTitle" class="text-sm text-gray-600 self-center">—</div>
+            <button id="nextMonth" class="glass-ink px-3 py-2 rounded-xl text-sm">Вперёд &gt;</button>
+          </div>
+        </header>
+        <div id="calendar" class="grid grid-cols-7 gap-2"></div>
+      </section>
+
+      <section id="page-payroll" class="page glass p-4 sm:p-5">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Зарплаты</h2>
+          <span class="text-xs text-gray-600">расчет по ставке ПВЗ</span>
+        </header>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+          <div class="glass-ink rounded-xl p-3"><div class="text-xs text-gray-600">Период</div><div id="periodLabel" class="text-base font-semibold">11–25</div></div>
+          <div class="glass-ink rounded-xl p-3"><div class="text-xs text-gray-600">Смен</div><div id="shiftsCount" class="text-base font-semibold">—</div></div>
+          <div class="glass-ink rounded-xl p-3"><div class="text-xs text-gray-600">Ставка</div><div id="rate" class="text-base font-semibold">по ПВЗ</div></div>
+          <div class="glass-ink rounded-xl p-3"><div class="text-xs text-gray-600">Итого</div><div id="total" class="text-base font-semibold">— ₽</div></div>
+        </div>
+        <div id="payrollTable" class="glass-ink rounded-xl p-2 overflow-x-auto no-scrollbar">
+          <table class="w-full min-w-[560px] text-sm">
+            <thead><tr class="text-left"><th class="py-2 px-3 font-semibold">Сотрудник</th><th class="py-2 px-3 font-semibold">Смен</th><th class="py-2 px-3 font-semibold">Сумма</th></tr></thead>
+            <tbody id="payrollBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="page-requisites" class="page glass p-4 sm:p-5">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Реквизиты для выплаты</h2>
+          <span class="text-xs text-gray-600">#requisites</span>
+        </header>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <select id="bankEmployee" class="glass-ink rounded-xl px-3 py-3"></select>
+          <input id="bankPhone" type="tel" placeholder="+79999999999" class="glass-ink rounded-xl px-3 py-3" />
+          <input id="bankName" type="text" placeholder="Банк" class="glass-ink rounded-xl px-3 py-3" />
+          <div class="sm:col-span-3 flex gap-3">
+            <button id="saveReqBtn" class="glass-ink rounded-xl px-4 py-3 font-semibold flex-1">Сохранить</button>
+            <button id="clearReqBtn" class="glass-ink rounded-xl px-4 py-3">Очистить</button>
+          </div>
+        </div>
+        <div id="reqList" class="mt-4 glass-ink rounded-xl p-2 overflow-x-auto no-scrollbar">
+          <table class="w-full min-w-[560px] text-sm">
+            <thead><tr class="text-left"><th class="py-2 px-3 font-semibold">Сотрудник</th><th class="py-2 px-3 font-semibold">Реквизиты</th><th class="py-2 px-3 font-semibold w-24">Действия</th></tr></thead>
+            <tbody id="reqBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+
+
+      <section id="page-admin" class="page glass p-4 sm:p-5 hidden">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Админ‑панель</h2>
+          <button id="logoutBtn" class="glass-ink rounded-xl px-3 py-2 text-sm">Выйти</button>
+        </header>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="glass-ink rounded-xl p-3">
+            <h3 class="font-semibold mb-2">Сотрудники</h3>
+            <div class="flex gap-2 mb-2">
+              <input id="newEmp" class="glass-ink flex-1 px-3 py-2" placeholder="Имя" />
+              <button id="addEmp" class="glass-ink px-3 py-2">Добавить</button>
+            </div>
+            <button id="delEmp" class="glass-ink px-3 py-2">Удалить выбранного</button>
+          </div>
+          <div class="glass-ink rounded-xl p-3">
+            <h3 class="font-semibold mb-2">Пункты</h3>
+            <div class="flex gap-2 mb-2">
+              <input id="newPoint" class="glass-ink flex-1 px-3 py-2" placeholder="ПВЗ" />
+              <button id="addPoint" class="glass-ink px-3 py-2">Добавить</button>
+            </div>
+            <button id="delPoint" class="glass-ink px-3 py-2">Удалить выбранный</button>
+          </div>
+          <div class="glass-ink rounded-xl p-3">
+            <h3 class="font-semibold mb-2">Ставки</h3>
+            <div class="flex gap-2 mb-2">
+              <input id="newRate" type="number" class="glass-ink flex-1 px-3 py-2" placeholder="₽" />
+              <button id="setRate" class="glass-ink px-3 py-2">Обновить</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    
+      <section id="page-supplies" class="page glass p-4 sm:p-5 hidden-soft">
+        <header class="mb-3 flex items-center justify-between">
+          <h2 class="text-base sm:text-lg font-semibold">Заказ расходников</h2>
+          <span class="text-xs text-gray-600">#supplies</span>
+        </header>
+
+        <div class="glass-ink rounded-2xl p-3 sm:p-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <select id="supEmployee" class="glass-ink rounded-xl px-3 py-3 focus:ring-2 focus:ring-brand-500">
+              <option value="">Сотрудник</option>
+            </select>
+            <select id="supPoint" class="glass-ink rounded-xl px-3 py-3 focus:ring-2 focus:ring-brand-500">
+              <option value="">ПВЗ</option>
+            </select>
+          </div>
+
+          <div id="supChecklist" class="grid grid-cols-1 sm:grid-cols-2 gap-2 my-3"></div>
+
+          <button id="createSupplyReq" class="glass-ink rounded-xl px-4 py-3 font-semibold">Создать заявку</button>
+        </div>
+
+        <h3 class="mt-4 text-sm font-semibold text-gray-700">Заявки</h3>
+        <div id="supRequestsList" class="grid grid-cols-1 gap-2 mt-2"></div>
+      </section>
+
+</main>
+  </div>
+
+  
+  <!-- Floating action button for Supplies (visible on checkin only) -->
+  <div id="suppliesFab" class="fixed left-0 right-0 z-[999] px-4 sm:px-5" style="bottom:80px; display:none;">
+    <button id="openSupplies" class="glass-ink w-full rounded-2xl px-4 py-4 font-semibold text-base">Заказать расходники</button>
+  </div>
+<nav class="tabbar">
+    <div class="wrap">
+      <button data-page="checkin" class="active">Отметка</button>
+      <button data-page="calendar">Календарь</button>
+      <button data-page="payroll">Зарплаты</button>
+      <button data-page="requisites">Реквизиты</button>
+    </div>
+  </nav>
+
+  <!-- RTDB adapter must load first -->
+  <script type="module" src="js/data.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Smooth initial reveal
+    window.addEventListener('load', () => document.body.classList.add('ready'));
+  </script>
+</body>
+</html>

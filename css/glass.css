@@ -1,0 +1,35 @@
+:root{--glass-bg:rgba(255,255,255,.32);--glass-bg-strong:rgba(255,255,255,.42);--glass-stroke:rgba(255,255,255,.55);--glass-stroke-outer:rgba(0,0,0,.06);--glass-shadow:0 10px 30px rgba(16,24,40,.08),0 2px 8px rgba(16,24,40,.05);--glass-inset:inset 0 1px 0 rgba(255,255,255,.42);--glass-highlight:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,.12) 46%,rgba(255,255,255,0) 60%)}
+body{background:linear-gradient(180deg,#f6fbff,#fff 40%,#eef6ff)}
+.liquid-blobs{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.liquid-blobs .blob{position:absolute;border-radius:9999px;filter:blur(80px) saturate(120%);opacity:.45;will-change:transform}
+.liquid-blobs .a{width:720px;height:520px;left:-140px;top:-100px;background:radial-gradient(60% 60% at 40% 40%,rgba(43,133,255,.35),rgba(255,255,255,0) 70%),radial-gradient(60% 60% at 70% 60%,rgba(255,77,199,.28),rgba(255,255,255,0) 75%);animation:blobA 55s ease-in-out infinite alternate}
+.liquid-blobs .b{width:820px;height:620px;right:-220px;bottom:-220px;background:radial-gradient(60% 60% at 60% 40%,rgba(139,193,255,.28),rgba(255,255,255,0) 70%),radial-gradient(60% 60% at 30% 70%,rgba(255,77,199,.22),rgba(255,255,255,0) 75%);animation:blobB 65s ease-in-out infinite alternate}
+@keyframes blobA{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(30px,20px,0) scale(1.06)}}
+@keyframes blobB{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-25px,-15px,0) scale(1.05)}}
+.glass{background:var(--glass-bg);backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);border-radius:24px;box-shadow:var(--glass-shadow),var(--glass-inset);position:relative;overflow:hidden}
+.glass:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:var(--glass-highlight)}
+.glass:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 1px var(--glass-stroke-outer),inset 0 0 0 1px var(--glass-stroke)}
+.glass-ink{background:var(--glass-bg-strong);backdrop-filter:blur(22px) saturate(170%);-webkit-backdrop-filter:blur(22px) saturate(170%);border-radius:18px;box-shadow:var(--glass-shadow),var(--glass-inset);position:relative}
+.glass-ink:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:0 0 0 1px var(--glass-stroke-outer),inset 0 0 0 1px var(--glass-stroke)}
+.tabbar{position:fixed;left:0;right:0;bottom:12px;display:flex;justify-content:center;z-index:1000;padding:0 16px}
+.tabbar .wrap{display:flex;gap:6px;padding:6px;border-radius:24px;background:var(--glass-bg);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);box-shadow:var(--glass-shadow),var(--glass-inset)}
+.tabbar button{border:none;padding:8px 10px;border-radius:16px;font-weight:700;font-size:12px;cursor:pointer;background:var(--glass-bg-strong)}
+.tabbar button.active{outline:2px solid rgba(43,133,255,.4)}
+#calendar .cell{min-height:110px;border-radius:16px;padding:8px;font-size:12px;background:var(--glass-bg);backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);box-shadow:var(--glass-shadow),var(--glass-inset)}
+#calendar .cell.active{outline:2px solid rgba(43,133,255,.5)}
+.cell .vtext{
+  display: block;
+  writing-mode: vertical-rl; /* вертикальное направление */
+  text-orientation: mixed;   /* нормальные буквы */
+  font-size: clamp(9px, 2.2vw, 12px); /* адаптив */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 380px){
+  .cell .vtext{
+    font-size: clamp(8px, 2.8vw, 11px);
+  }
+}
+
