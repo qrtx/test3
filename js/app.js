@@ -1,17 +1,16 @@
-// js/app.js — UI + навигация + рендер
-(function () {
-  const $ = (s, c = document) => c.querySelector(s);
-  const $$ = (s, c = document) => Array.from(c.querySelectorAll(s));
+;(() => {
+  'use strict';
+  const $  = (s, c=document) => c.querySelector(s);
+  const $$ = (s, c=document) => Array.from(c.querySelectorAll(s));
 
   // ---------- Навигация с анимацией ----------
-  const tabs = $$('.tabbar button'), pages = $$('.page');
+  let tabs = [];
+  let pages = [];
   function _scrollToTop(){
-    try {
+    try{
       const target = document.scrollingElement || document.documentElement || document.body;
-      window.scrollTo(0,0);
-      target.scrollTop = 0;
-      document.body.scrollTop = 0;
-    } catch(e){}
+      target.scrollTop = 0; document.body.scrollTop = 0; window.scrollTo(0,0);
+    }catch{}
   }
   function show(page){
     pages.forEach(p => {
@@ -19,47 +18,19 @@
       p.classList.toggle('active', active);
     });
     tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
-    localStorage.setItem('activePage', page);
+    try{ localStorage.setItem('activePage', page); }catch{}
     _scrollToTop();
   }
-tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
-    localStorage.setItem('activePage', page);
-  }
-  tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.page)));
-  try{ localStorage.setItem('activePage','checkin'); }catch{};
-  try{ localStorage.setItem('activePage','checkin'); }catch{}; show('checkin');
-  // ---------- Заполнение списков ----------
-  async function refreshEmployees() {
-    const list = await DB.getEmployees();
-    const empSel = $('#employee'), bankEmp = $('#bankEmployee');
-    if (empSel) empSel.innerHTML = '<option value="">Сотрудник</option>';
-    if (bankEmp) bankEmp.innerHTML = '<option value="">Сотрудник</option>';
-    (list || []).forEach(n => {
-      if (empSel) empSel.append(new Option(n, n));
-      if (bankEmp) bankEmp.append(new Option(n, n));
-    });
-  }
 
-  async function refreshPoints() {
-    const list = await DB.getPoints();
-    const sel = $('#point'); if (!sel) return;
-    sel.innerHTML = '<option value="">ПВЗ</option>';
-    (list || []).forEach(p => sel.append(new Option(p, p)));
-  }
-
-  // ---------- Отметка ----------
-  const checkinBtn = $('#btn-checkin');
-  if (checkinBtn) checkinBtn.addEventListener('click', async () => {
-    const name = $('#employee').value, point = $('#point').value;
-    if (!name || !point) return alert('Выбери сотрудника и ПВЗ');
-    await DB.markShift({ name, point, date: new Date() });
-    const s = $('#checkinStatus');
-    if (s) s.textContent = `Отмечено: ${name} @ ${point} • ${new Date().toLocaleString('ru-RU')}`;
-    renderCalendar(currentYear, currentMonth);
-    refreshPayroll();
+  // инициализируем ссылки на элементы после загрузки DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    tabs  = $$('.tabbar button');
+    pages = $$('.page');
+    tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.page)));
+    try{ localStorage.setItem('activePage','checkin'); }catch{}
+    show('checkin');
   });
 
-  // ---------- Календарь ----------
   const monthTitle = $('#monthTitle'), cal = $('#calendar');
   let today = new Date(); let currentYear = today.getFullYear(), currentMonth = today.getMonth();
 
