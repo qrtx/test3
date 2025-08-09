@@ -359,6 +359,12 @@
 
   // Floating button + routing
   const suppliesFab = $('#suppliesFab');
+  /* INIT FAB VIS */
+  try {
+    const current = localStorage.getItem('activePage') || 'checkin';
+    if (suppliesFab) suppliesFab.style.display = (current==='checkin') ? 'block' : 'none';
+  } catch {}
+
   $('#openSupplies')?.addEventListener('click', ()=> show('supplies'));
 
   const _show = show;
