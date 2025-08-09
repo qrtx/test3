@@ -5,11 +5,12 @@
 
   // ---------- Навигация с анимацией ----------
   const tabs = $$('.tabbar button'), pages = $$('.page');
-  function show(page) {
+  function _scrollToTop(){ try{ window.scrollTo({top:0, left:0, behavior:'auto'}); document.documentElement.scrollTop=0; document.body.scrollTop=0; }catch(e){} }
+  function show(page){
     pages.forEach(p => {
       const active = (p.id === 'page-' + page);
       p.classList.toggle('active', active);
-      });
+       _scrollToTop(); });
     tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
     localStorage.setItem('activePage', page);
   }
@@ -371,7 +372,7 @@
     _show(page);
     if (suppliesFab) suppliesFab.style.display = (page==='checkin') ? 'block' : 'none';
     if (page==='supplies') initSuppliesPage();
-  };
+   _scrollToTop(); };
 
 
 
