@@ -9,8 +9,7 @@
     pages.forEach(p => {
       const active = (p.id === 'page-' + page);
       p.classList.toggle('active', active);
-      p.classList.toggle('hidden-soft', !active);
-    });
+      });
     tabs.forEach(b => b.classList.toggle('active', b.dataset.page === page));
     localStorage.setItem('activePage', page);
   }
@@ -384,6 +383,8 @@
     await refreshPayroll();
     await refreshReqs();
     await loadRules(); await loadAdmins();
+    try { document.body.classList.add('ready'); } catch(e) {}
+  
   }
 
   // если DB уже есть — стартуем сразу, иначе ждём событие от data.js
