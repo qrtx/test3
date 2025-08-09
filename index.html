@@ -17,13 +17,10 @@
     /* Page transition + initial reveal */
     body { opacity: 0; transition: opacity .35s ease; }
     body.ready { opacity: 1; }
-    .page { 
-      display: block; opacity: 0; transform: translateY(8px);
-      pointer-events: none; transition: opacity .22s ease, transform .24s ease;
-      will-change: opacity, transform;
-    }
-    .page.hidden-soft { display:none; } /* fallback if JS toggles class */
-    .page.active { opacity: 1; transform: none; pointer-events: auto; }
+    .page{display:none;opacity:0;transform:translateY(8px);pointer-events:none;}
+    .page.hidden-soft{display:none;} /* fallback if JS toggles class */
+    .page.active{display:block;opacity:1;transform:none;pointer-events:auto;animation:fadeUp .24s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
     .badge{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,.35); }
     #calendar{ min-height: 420px; }
   </style>

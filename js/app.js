@@ -23,7 +23,25 @@
   }
 
   // инициализируем ссылки на элементы после загрузки DOM
-  document.addEventListener('DOMContentLoaded', () => {
+  
+  // ---------- Заполнение списков ----------
+  async function refreshEmployees() {
+    const list = await DB.getEmployees();
+    const empSel = $('#employee'), bankEmp = $('#bankEmployee');
+    if (empSel) empSel.innerHTML = '<option value="">Сотрудник</option>';
+    if (bankEmp) bankEmp.innerHTML = '<option value="">Сотрудник</option>';
+    (list || []).forEach(n => {
+      if (empSel) empSel.append(new Option(n, n));
+      if (bankEmp) bankEmp.append(new Option(n, n));
+    });
+  }
+  async function refreshPoints() {
+    const list = await DB.getPoints();
+    const sel = $('#point'); if (!sel) return;
+    sel.innerHTML = '<option value="">ПВЗ</option>';
+    (list || []).forEach(p => sel.append(new Option(p, p)));
+  }
+document.addEventListener('DOMContentLoaded', () => {
     tabs  = $$('.tabbar button');
     pages = $$('.page');
     tabs.forEach(b => b.addEventListener('click', () => show(b.dataset.page)));
